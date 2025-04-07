@@ -10,6 +10,9 @@ from ultralytics.utils.plotting import Annotator
 import cv2
 import numpy as np
 
+MODEL = 'models/yolo11m.pt'
+VIDEO = 'videos/liverpool.mp4'
+
 
 def get_class_id():
     with open("weights/coco.names", "r") as f:
@@ -18,11 +21,11 @@ def get_class_id():
 
 
 def load_model():
-    return YOLO('YOLO_models/yolo11m.pt')
+    return YOLO(MODEL)
 
 
 def load_video():
-    cap = cv2.VideoCapture('videos/liverpool.mp4')
+    cap = cv2.VideoCapture(VIDEO)
     
     if not cap.isOpened():
         print("Erro ao abrir o vídeo!")
