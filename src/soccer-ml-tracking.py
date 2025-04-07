@@ -7,9 +7,11 @@
 from ultralytics import YOLO
 from ultralytics.utils.plotting import Annotator
 
-import cv2
 import numpy as np
 import pandas as pd
+
+import cv2
+import time
 
 MODEL = 'models/yolo11s.pt'
 VIDEO = 'videos/campo.mp4'
@@ -47,6 +49,9 @@ def main():
     cv2.namedWindow("Tracking", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Tracking", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
+    # start timer
+    start_time = time.time()
+
     while True:
         ret, frame = video.read()
         if not ret:
@@ -81,12 +86,23 @@ def main():
         if cv2.waitKey(1) & 0xFF == 27:
             break
 
+    end_time = time.time()
     video.release()
     cv2.destroyAllWindows()
 
     # Salva os dados de tracking em um arquivo CSV
     save_csv(tracking_data)
 
+    # estatisticas
+    total_time = end_time - start_time
+    print(f"Tempo total de processamento: {total_time:.2f} segundos")
+
+    # calcula FPS
+    fps_medio = frame_idx / total_time
+    print(f"FPS médio: {fps_medio:.2f}")
+
+    # total de frames processados
+    print(f"Total de frames processados: {frame_idx}")
 
 if __name__ == '__main__':
     main()
