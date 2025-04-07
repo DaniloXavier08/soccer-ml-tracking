@@ -1,0 +1,9 @@
+# Exportar onnx
+yolo export model=yolo11n.pt format=onnx --simplify
+
+
+
+
+
+
+https://medium.com/softplus-publication/video-object-tracking-with-yolov8-and-sort-library-e28444b189aa
