@@ -1,3 +1,9 @@
+# This script processes a video file using YOLO models for object detection.
+# 1. It captures a frame from the video and saves it as an image.
+# 2. It iterates through a list of YOLO model weights, loading each model.
+# 3. Each model performs object detection on the saved frame.
+# 4. The detection results are saved as images with the model name in the filename.
+
 from ultralytics import YOLO
 import cv2
 
@@ -24,7 +30,7 @@ mods = [
     'yolov10s.pt',
     'yolov10x.pt',
     'yolov8l.pt',
-    'yolov8n.pt'
+    'yolov8n.pt',
     'yolov10n.pt'
 ]
 
