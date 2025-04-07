@@ -7,7 +7,11 @@
 from ultralytics import YOLO
 import cv2
 
-cap = cv2.VideoCapture('videos/liverpool.mp4')
+VIDEO = 'campo'
+VIDEO_PATH = f'videos/{VIDEO}.mp4'
+IMG_PATH = f'img/frame_{VIDEO}.png'
+
+cap = cv2.VideoCapture(VIDEO_PATH)
 
 if not cap.isOpened():
     print("Erro ao abrir o vídeo!")
@@ -15,9 +19,7 @@ if not cap.isOpened():
 
 ret, frame = cap.read()
 cv2.imshow('frame', frame)
-cv2.waitKey(0)
-
-cv2.imwrite('img/frame_liverpool.png', frame)
+cv2.imwrite(IMG_PATH, frame)
 
 mods = [
     'yolo11l.pt',
@@ -25,18 +27,19 @@ mods = [
     'yolo11n.pt',
     'yolo11s.pt',
     'yolo11x.pt',
+    'yolov10n.pt',
     'yolov10l.pt',
     'yolov10m.pt',
     'yolov10s.pt',
     'yolov10x.pt',
     'yolov8l.pt',
     'yolov8n.pt',
-    'yolov10n.pt'
+    'yolov8x.pt'
 ]
 
 for mod in mods:
-    model = YOLO(f'YOLO_models/{mod}')
-    results = model('img/frame_liverpool.png', conf=0.3)
+    model = YOLO(f'models/{mod}')
+    results = model(IMG_PATH, conf=0.3)
 
     for result in results:
-        result.save(f'{mod}_frame_liverpool.png')
+        result.save(f'predict/{VIDEO}/{mod}_frame_{VIDEO}.png')

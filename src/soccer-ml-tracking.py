@@ -10,8 +10,8 @@ from ultralytics.utils.plotting import Annotator
 import cv2
 import numpy as np
 
-MODEL = 'models/yolo11m.pt'
-VIDEO = 'videos/liverpool.mp4'
+MODEL = 'models/yolo11s.pt'
+VIDEO = 'videos/campo_resized.mp4'
 
 
 def get_class_id():
