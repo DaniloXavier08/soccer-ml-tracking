@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import cv2
 
 # Configurações
-CSV_FILE = 'csv/tracking-soccer.csv'
+CSV_FILE = 'csv/tracking.csv'
 VIDEO_FILE = 'videos/campo.mp4' 
 HEATMAP_IMAGE = 'img/heatmap_medio.png'
 

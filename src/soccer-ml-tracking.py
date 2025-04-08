@@ -10,6 +10,7 @@ from ultralytics.utils.plotting import Annotator
 import numpy as np
 import pandas as pd
 
+import argparse
 import cv2
 import time
 
@@ -21,6 +22,12 @@ HORIZONTAL_LINE_END_Y = 310
 
 VERTICAL_LINE_START_X = 2750
 VERTICAL_LINE_END_X = 1650
+
+# Argumentos
+parser = argparse.ArgumentParser()
+parser.add_argument('--save-video', action='store_true', help='Salvar vídeo com bounding boxes')
+parser.add_argument('--save-csv', action='store_true', help='Salvar resultados no CSV')
+args = parser.parse_args()
 
 
 def load_model():
@@ -44,6 +51,7 @@ def save_csv(tracking_data):
 
 
 def is_inside_roi(x1, y1, x2, y2, frame_width, is_debug=False):
+    # linhas
     x_sup1, y_sup1 = 0, HORIZONTAL_LINE_START_Y
     x_sup2, y_sup2 = frame_width, HORIZONTAL_LINE_END_Y
 
@@ -54,14 +62,11 @@ def is_inside_roi(x1, y1, x2, y2, frame_width, is_debug=False):
     x_center = (x1 + x2) // 2
     y_center = (y1 + y2) // 2
 
-    # Interpola a altura da linha superior no x do centro
+    # interpola os valores
     y_sup = y_sup1 + (y_sup2 - y_sup1) * ((x_center - x_sup1) / (x_sup2 - x_sup1))
-
-    # Interpola a altura da linha inferior no x do centro
     x_lim_dir = x_vert1 + (x_vert2 - x_vert1) * ((y_center - y_vert1) / (y_vert2 - y_vert1))
 
-    #return y_center >= y_sup and y_center <= x_lim_dir
-    return y_center > y_sup and x_center < x_lim_dir
+    return y_center >= y_sup and x_center <= x_lim_dir
 
 
 def main():
@@ -75,6 +80,14 @@ def main():
 
     cv2.namedWindow("Tracking", cv2.WND_PROP_FULLSCREEN)
     cv2.setWindowProperty("Tracking", cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+
+    out = None
+    if args.save_video:
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fps = video.get(cv2.CAP_PROP_FPS)
+        width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        out = cv2.VideoWriter('videos/saida_com_bboxes.mp4', fourcc, fps, (width, height))
 
     # start timer
     start_time = time.time()
@@ -111,10 +124,15 @@ def main():
                     'y2': y2
                 })
 
+        frame_idx += 1
+
         cv2.line(frame, (0, HORIZONTAL_LINE_START_Y), (frame.shape[1], HORIZONTAL_LINE_END_Y), (0, 0, 255), 2)
         cv2.line(frame, (VERTICAL_LINE_START_X, 0), (frame.shape[1], VERTICAL_LINE_END_X), (0, 0, 255), 2)
 
-        frame_idx += 1
+         # salva frame no vídeo
+        if args.save_video and out:
+            out.write(frame)
+        
         cv2.imshow("Tracking", frame)
         if cv2.waitKey(1) & 0xFF == 27:
             break
@@ -123,8 +141,12 @@ def main():
     video.release()
     cv2.destroyAllWindows()
 
+    if args.save_video and out:
+        out.release()
+
     # Salva os dados de tracking em um arquivo CSV
-    save_csv(tracking_data)
+    if args.save_csv:
+        save_csv(tracking_data)
 
     # estatisticas
     total_time = end_time - start_time
