@@ -16,6 +16,12 @@ import time
 MODEL = 'models/yolo11s.pt'
 VIDEO = 'videos/campo.mp4'
 
+HORIZONTAL_LINE_START_Y = 360
+HORIZONTAL_LINE_END_Y = 310
+
+VERTICAL_LINE_START_X = 2750
+VERTICAL_LINE_END_X = 1650
+
 
 def load_model():
     return YOLO(MODEL)
@@ -35,6 +41,27 @@ def save_csv(tracking_data):
     df = pd.DataFrame(tracking_data)
     df.to_csv('csv/tracking.csv', index=False)
     print("Tracking data saved to tracking.csv")
+
+
+def is_inside_roi(x1, y1, x2, y2, frame_width, is_debug=False):
+    x_sup1, y_sup1 = 0, HORIZONTAL_LINE_START_Y
+    x_sup2, y_sup2 = frame_width, HORIZONTAL_LINE_END_Y
+
+    x_vert1, y_vert1 = VERTICAL_LINE_START_X, 0
+    x_vert2, y_vert2 = frame_width, VERTICAL_LINE_END_X
+
+    # Centro da bounding box
+    x_center = (x1 + x2) // 2
+    y_center = (y1 + y2) // 2
+
+    # Interpola a altura da linha superior no x do centro
+    y_sup = y_sup1 + (y_sup2 - y_sup1) * ((x_center - x_sup1) / (x_sup2 - x_sup1))
+
+    # Interpola a altura da linha inferior no x do centro
+    x_lim_dir = x_vert1 + (x_vert2 - x_vert1) * ((y_center - y_vert1) / (y_vert2 - y_vert1))
+
+    #return y_center >= y_sup and y_center <= x_lim_dir
+    return y_center > y_sup and x_center < x_lim_dir
 
 
 def main():
@@ -65,6 +92,9 @@ def main():
 
             for box, id in zip(boxes, ids):
                 x1, y1, x2, y2 = [int(i) for i in box]
+                
+                if not is_inside_roi(x1, y1, x2, y2, frame.shape[1]):
+                    continue
 
                 # desenha no frame
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
@@ -80,6 +110,9 @@ def main():
                     'x2': x2,
                     'y2': y2
                 })
+
+        cv2.line(frame, (0, HORIZONTAL_LINE_START_Y), (frame.shape[1], HORIZONTAL_LINE_END_Y), (0, 0, 255), 2)
+        cv2.line(frame, (VERTICAL_LINE_START_X, 0), (frame.shape[1], VERTICAL_LINE_END_X), (0, 0, 255), 2)
 
         frame_idx += 1
         cv2.imshow("Tracking", frame)
