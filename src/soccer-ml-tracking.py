@@ -68,6 +68,13 @@ def is_inside_roi(x1, y1, x2, y2, frame_width, is_debug=False):
 
     return y_center >= y_sup and x_center <= x_lim_dir
 
+def save_video(video):
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    fps = video.get(cv2.CAP_PROP_FPS)
+    width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    return cv2.VideoWriter('videos/saida_com_bboxes_high.mp4', fourcc, fps, (width, height))
+
 
 def main():
     video = load_video()
@@ -83,11 +90,7 @@ def main():
 
     out = None
     if args.save_video:
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        fps = video.get(cv2.CAP_PROP_FPS)
-        width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-        height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        out = cv2.VideoWriter('videos/saida_com_bboxes.mp4', fourcc, fps, (width, height))
+        out = save_video(video)
 
     # start timer
     start_time = time.time()
@@ -97,7 +100,7 @@ def main():
         if not ret:
             break
 
-        results = model.track(frame, persist=True, conf=0.3, tracker="bytetrack.yaml")
+        results = model.track(frame, persist=True, conf=0.3, tracker="models/bytetrack.yaml")
 
         if results[0].boxes.id is not None:
             boxes = results[0].boxes.xyxy.cpu().numpy()

@@ -27,7 +27,7 @@ if not ret:
 frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 h, w, _ = frame.shape
 
-def save_image(cmap):
+def save_image(cmap, df):
     # Criar o gráfico
     plt.figure(figsize=(12, 7))
     plt.imshow(frame_rgb)
@@ -47,7 +47,10 @@ def save_image(cmap):
     plt.savefig(f"{HEATMAP_IMAGE}_{cmap}.png", dpi=300)
     #plt.show()
 
-cmaps = ['Reds', 'viridis' , 'magma', 'rocket' , 'inferno']
+cmaps = ['Reds', 'viridis' , 'magma', 'rocket' , 'inferno', 'icefire', 'RdBu']
 
-for cmap in cmaps:
-    save_image(cmap)
+# for cmap in cmaps:
+#     save_image('RdBu')
+
+# save_image('RdBu', df)
+save_image('viridis', df)
