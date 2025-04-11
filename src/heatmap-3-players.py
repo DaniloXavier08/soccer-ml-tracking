@@ -19,6 +19,7 @@ frame_rgb = cv2.cvtColor(f, cv2.COLOR_BGR2RGB)
 h, w, _ = f.shape
 
 # Tamanho da figura com 3 subplots lado a lado
+img_height, img_width, _ = frame_rgb.shape
 player_ids = [3, 4, 9]
 plt.figure(figsize=(18, 6))
 
@@ -34,9 +35,12 @@ for i, player_id in enumerate(player_ids):
         cmap='viridis',  
         alpha=0.6,
         thresh=0.01,
-        levels=100
+        levels=100,
+        clip=((0, img_width), (0, img_height))
     )
     plt.title(f"Jogador ID {player_id}")
+    plt.xlim(0, img_width)
+    plt.ylim(img_height, 0) 
     plt.axis('off')
 
 plt.suptitle("Mapas de Calor por Jogador", fontsize=16)
